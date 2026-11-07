@@ -1,1 +1,1 @@
-# yamadaja.github.io
+# yamadaja78szk.github.io
