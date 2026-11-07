@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ボタンひとつで会員番号を発行してコピーできます。"
+    />
+    <title>会員番号発行</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          "Noto Sans JP", "Yu Gothic UI", "Hiragino Kaku Gothic ProN",
+          Meiryo, sans-serif;
+        color: #233047;
+        background: #f2f6fb;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      main {
+        width: min(100%, 440px);
+        padding: 36px 28px;
+        border: 1px solid #e3eaf3;
+        border-radius: 20px;
+        background: #fff;
+        box-shadow: 0 16px 48px rgb(34 58 89 / 10%);
+        text-align: center;
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: #3977d5;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(1.5rem, 6vw, 2rem);
+      }
+
+      .description {
+        margin: 12px 0 28px;
+        color: #65748a;
+        font-size: 0.95rem;
+        line-height: 1.7;
+      }
+
+      .number-label {
+        display: block;
+        margin-bottom: 8px;
+        color: #65748a;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      #number {
+        min-height: 58px;
+        display: grid;
+        place-items: center;
+        padding: 12px;
+        border: 1px dashed #cbd6e5;
+        border-radius: 10px;
+        background: #f8fafd;
+        color: #1f3a5c;
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        font-size: clamp(1rem, 4vw, 1.25rem);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        overflow-wrap: anywhere;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      button {
+        min-height: 48px;
+        padding: 10px 14px;
+        border: 0;
+        border-radius: 10px;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+        transition:
+          transform 120ms ease,
+          background-color 120ms ease;
+      }
+
+      button:hover:not(:disabled) {
+        transform: translateY(-1px);
+      }
+
+      button:focus-visible {
+        outline: 3px solid #9fc2fb;
+        outline-offset: 3px;
+      }
+
+      #create-button {
+        background: #3977d5;
+        color: #fff;
+      }
+
+      #create-button:hover {
+        background: #2d66bd;
+      }
+
+      #copy-button {
+        background: #eaf1fb;
+        color: #315d98;
+      }
+
+      #copy-button:hover:not(:disabled) {
+        background: #dce9fa;
+      }
+
+      #copy-button:disabled {
+        color: #9aa8bb;
+        cursor: not-allowed;
+      }
+
+      #message {
+        min-height: 1.5em;
+        margin: 18px 0 0;
+        color: #39704b;
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 360px) {
+        main {
+          padding: 28px 20px;
+        }
+
+        .actions {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">MEMBER TOOLS</p>
+      <h1>会員番号発行</h1>
+      <p class="description">ボタンを押して会員番号を発行してください。</p>
+
+      <span class="number-label">発行された会員番号</span>
+      <output id="number" aria-live="polite">
+        番号はまだ発行されていません
+      </output>
+
+      <div class="actions">
+        <button id="create-button" type="button">番号を発行</button>
+        <button id="copy-button" type="button" disabled>番号をコピー</button>
+      </div>
+      <p id="message" role="status" aria-live="polite"></p>
+    </main>
+
+    <script>
+      let memberNumber = "";
+
+      function createNumber() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+        const hour = String(now.getHours()).padStart(2, "0");
+        const minute = String(now.getMinutes()).padStart(2, "0");
+        const second = String(now.getSeconds()).padStart(2, "0");
+
+        memberNumber = "78" + year + month + day + hour + minute + second;
+        document.getElementById("number").textContent = memberNumber;
+        document.getElementById("copy-button").disabled = false;
+        document.getElementById("message").textContent =
+          "会員番号を発行しました！";
+      }
+
+      async function copyNumber() {
+        const message = document.getElementById("message");
+
+        if (!memberNumber) {
+          message.textContent = "先に番号を発行してください";
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(memberNumber);
+          message.textContent = "コピーしました！";
+        } catch (error) {
+          message.textContent =
+            "コピーできませんでした。番号を手動でコピーしてください。";
+        }
+      }
+
+      document
+        .getElementById("create-button")
+        .addEventListener("click", createNumber);
+      document
+        .getElementById("copy-button")
+        .addEventListener("click", copyNumber);
+    </script>
+  </body>
+</html>
